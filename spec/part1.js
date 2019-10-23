@@ -20,6 +20,7 @@
   describe('Part I', function() {
 
     describe('identity', function() {
+      checkForNativeMethods(() => { _.identity(1); });
 
       it('should return whatever value is passed into it', function() {
         var uniqueObject = {};
@@ -31,9 +32,10 @@
     });
 
     describe('first', function() {
+      checkForNativeMethods(() => { _.first([1, 2, 3]); });
 
       it('should be able to pull out the first element of an array', function() {
-        expect(_.first([1, 2, 3])).to.equal(FILL_ME_IN);
+        expect(_.first([1, 2, 3])).to.equal(1);
       });
 
       it('should accept an index argument', function() {
@@ -43,7 +45,7 @@
       it('should return empty array if zero is passed in as the index', function() {
         // There is a very important difference between `equal` and `eql`
         // Can you discover what it is?
-        expect(_.first([1, 2, 3], 0)).to.eql(FILL_ME_IN);
+        expect(_.first([1, 2, 3], 0)).to.eql([]);
       });
 
       it('should return all the array\'s elements if the index argument is larger than the length of the array', function() {
@@ -52,13 +54,14 @@
     });
 
     describe('last', function() {
+      checkForNativeMethods(() => { _.last([1, 2, 3]); });
 
       it('should pull the last element from an array', function() {
         expect(_.last([1, 2, 3])).to.equal(3);
       });
 
       it('should accept an index argument', function() {
-        expect(_.last([1, 2, 3], 2)).to.eql(FILL_ME_IN);
+        expect(_.last([1, 2, 3], 2)).to.eql([3]);
       });
 
       it('should return empty array if zero is passed in as the index', function() {
@@ -66,11 +69,12 @@
       });
 
       it('should return all the array\'s elements if the index argument is larger than the length of the array', function() {
-        expect(_.last([1, 2, 3], 5)).to.eql(FILL_ME_IN);
+        expect(_.last([1, 2, 3], 5)).to.eql([1, 2, 3]);
       });
     });
 
     describe('each', function() {
+      checkForNativeMethods(() => { _.each([], function() {}); });
 
       it('should not return anything', function() {
         var returnValue = _.each([], function() {});
@@ -126,7 +130,7 @@
           iterations.push([letter, index]);
         });
 
-        expect(iterations).to.eql(FILL_ME_IN);
+        expect(iterations).to.eql([['a', 0], ['b', 1], ['c', 2]]);
       });
 
       it('should iterate over arrays and provide access to the original collection', function() {
@@ -215,11 +219,12 @@
     });
 
     describe('indexOf', function() {
+      checkForNativeMethods(() => { _.indexOf([1, 2, 3], 1); });
 
       it('should find 40 in the list', function() {
         var numbers = [10, 20, 30, 40, 50];
 
-        expect(_.indexOf(FILL_ME_IN, 40)).to.equal(3);
+        expect(_.indexOf(numbers, 40)).to.equal(3);
       });
 
       it('should be able to compute indexOf even when the native function is undefined', function() {
@@ -229,18 +234,19 @@
       });
 
       it('returns -1 when the target cannot be found not in the list', function() {
-        var numbers = FILL_ME_IN;
+        var numbers = [];
 
         expect(_.indexOf(numbers, 35)).to.equal(-1);
       });
 
       it('returns the first index that the target can be found at when there are multiple matches', function() {
-        var numbers = FILL_ME_IN;
-        expect(FILL_ME_IN).to.equal(1);
+        var numbers = [0, 1, 2, 1, 4, 5];
+        expect(_.indexOf(numbers, 1)).to.equal(1);
       });
     });
 
     describe('filter', function() {
+      checkForNativeMethods(() => { _.filter([1, 2, 3], _.identity); });
 
       it('should return all even numbers in an array', function() {
         var isEven = function(num) { return num % 2 === 0; };
@@ -251,7 +257,7 @@
 
       it('should return all odd numbers in an array', function() {
         var isOdd = function(num) { return num % 2 !== 0; };
-        var odds = FILL_ME_IN;
+        var odds = _.filter([1, 2, 3, 4, 5, 6, 8], isOdd);
 
         expect(odds).to.eql([1, 3, 5]);
       });
@@ -266,6 +272,7 @@
     });
 
     describe('reject', function() {
+      checkForNativeMethods(() => { _.reject([1, 2, 3], _.identity); });
 
       it('should reject all even numbers', function() {
         var isEven = function(num) { return num % 2 === 0; };
@@ -291,6 +298,7 @@
     });
 
     describe('uniq', function() {
+      checkForNativeMethods(() => { _.uniq([1, 2, 3]); });
 
       it('should not mutate the input array', function() {
         var input = [1, 2, 3, 4, 5];
@@ -332,7 +340,7 @@
         var iterator = function(value) { return value === 1; };
         var numbers = [1, 2, 2, 3, 4, 4];
 
-        expect(_.uniq(FILL_ME_IN)).to.eql([1, 2]);
+        expect(_.uniq(numbers, true, iterator)).to.eql([1, 2]);
       });
 
       it('should produce a brand new array instead of modifying the input array', function() {
@@ -341,16 +349,11 @@
 
         expect(uniqueNumbers).to.not.equal(numbers);
       });
-      
-      it('should maintain same array length', function() {
-        var numbers = [1, 1, 2, 3];
-        var shuffled = _.shuffle(numbers);
 
-        expect(shuffled.length).to.equal(numbers.length);
-      });
     });
 
     describe('map', function() {
+      checkForNativeMethods(() => { _.map([1, 2], _.identity); });
 
       it('should not mutate the input array', function() {
         var input = [1, 2, 3, 4, 5];
@@ -383,7 +386,7 @@
       });
 
       it('should apply a function to every value in an array', function() {
-        var multiplyByTwo = FILL_ME_IN;
+        var multiplyByTwo = function(val) { return val * 2; };
 
         expect(_.map([1, 2, 3], multiplyByTwo)).to.eql([2, 4, 6]);
       });
@@ -399,6 +402,7 @@
     });
 
     describe('pluck', function() {
+      checkForNativeMethods(() => { _.pluck([{a: '1'}], 'a'); });
 
       it('should return values contained at a user-defined property', function() {
         var people = [
@@ -406,7 +410,7 @@
           { name: 'curly', age: 50 }
         ];
 
-        expect(_.pluck(people, 'name')).to.FILL_ME_IN(['moe', 'curly']);
+        expect(_.pluck(people, 'name')).to.eql(['moe', 'curly']);
       });
 
       it('should not modify the original array', function() {
@@ -417,11 +421,12 @@
 
         _.pluck(people, 'name');
 
-        expect(people).to.FILL_ME_IN([{ name: 'moe', age: 30 }, { name: 'curly', age: 50 }]);
+        expect(people).to.eql([{ name: 'moe', age: 30 }, { name: 'curly', age: 50 }]);
       });
     });
 
     describe('reduce', function() {
+      checkForNativeMethods(() => { _.reduce([3, 2, 1], (memo, item)=>{ return item; }); });
 
       it('should return a value', function() {
         var result = _.reduce([3, 2, 1], function(memo, item) { return item; });
@@ -431,7 +436,7 @@
       it('should not mutate the input array', function() {
         var input = [1, 2, 3, 4, 5];
         var result = _.reduce(input, function(memo, item) { return item; });
-        
+
         /*
          * Mutation of inputs should be avoided without good justification otherwise
          * as it can often lead to hard to find bugs and confusing code!
@@ -474,7 +479,7 @@
         var orderTraversed = [];
 
         _.reduce([1, 2, 3, 4], function(memo, item) {
-          // FILL_ME_IN
+          orderTraversed.push(item);
           // Add a line here that makes this test pass
           // for a working implementation of reduce
           return memo;
@@ -506,7 +511,7 @@
         expect(result).to.equal(4);
       });
 
-      it('Fill me in with a description of the behavior this test is checking for', function() {
+      it('should accept an accumulator if one is passed in', function() {
         var result = _.reduce([1, 2, 3], function(memo, item) {
           return memo * item;
         }, 0);
