@@ -239,23 +239,21 @@
     });
   };
 
-  // Sort the object's values by a criterion produced by an iterator.
-  // If iterator is a string, sort objects by that property with the name
-  // of that string. For example, _.sortBy(people, 'name') should sort
-  // an array of people by their name.
-  _.sortBy = (collection, iterator, results = []) => {
+  //-----------------------------SORTBY-----------------------------------------------------//
+  _.sortBy = (collection, iterator) => {
+    collection = collection.slice(0);
+    let results = [];
     if (collection.length > 1) {
-      debugger;
       let mid = Math.floor(collection.length / 2);
-      let left = _.sortBy(collection.slice(0, mid), iterator, results);
-      let right = _.sortBy(collection.slice(mid), iterator, results);
+      let left = _.sortBy(collection.slice(0, mid), iterator);
+      let right = _.sortBy(collection.slice(mid), iterator);
 
       if (typeof iterator === 'string') {
-        iterator = (val) => {
+        var iter = function(val) {
           return val[iterator] === undefined ? Infinity : val[iterator];
         };
       } else {
-        iterator = (val) => {
+        var iter = function(val) {
           return iterator(val) === undefined ? Infinity : iterator(val);
         };
       }
@@ -263,8 +261,7 @@
       let leftIndex = 0;
       let rightIndex = 0;
       while (leftIndex < left.length && rightIndex < right.length) {
-        debugger;
-        if (iterator(left[leftIndex]) <= iterator(right[rightIndex])) {
+        if (iter(left[leftIndex]) <= iter(right[rightIndex])) {
           results.push(left[leftIndex]);
           leftIndex++;
         } else {
