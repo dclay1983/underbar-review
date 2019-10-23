@@ -7,6 +7,7 @@
   // seem very useful, but remember it--if a function needs to provide an
   // iterator when the user does not pass one in, this will be handy.
   _.identity = function(val) {
+    return val;
   };
 
   /**
@@ -37,6 +38,12 @@
   // Like first, but for the last elements. If n is undefined, return just the
   // last element.
   _.last = function(array, n) {
+    if (n === undefined) { return array[array.length - 1]; }
+    if (n > 0) {
+      return array.slice(n > array.length - 1 ? 0 : n);
+    } else if ( n === 0) {
+      return [];
+    }
   };
 
   // Call iterator(value, key, collection) for each element of collection.
@@ -45,6 +52,15 @@
   // Note: _.each does not have a return value, but rather simply runs the
   // iterator function over each item in the input collection.
   _.each = function(collection, iterator) {
+    if (Array.isArray(collection)) {
+      for (let i = 0; i < collection.length; i++) {
+        iterator(collection[i], i, collection);
+      }
+    } else {
+      for (let key in collection) {
+        iterator(collection[key], key, collection);
+      }
+    }
   };
 
   // Returns the index at which value can be found in the array, or -1 if value
@@ -66,24 +82,57 @@
 
   // Return all elements of an array that pass a truth test.
   _.filter = function(collection, test) {
+    var results = [];
+    //itterate over array
+    _.each(collection, function(item) {
+      if (test(item)) {
+        results.push(item);
+      }
+    });
+    return results;
   };
 
   // Return all elements of an array that don't pass a truth test.
   _.reject = function(collection, test) {
     // TIP: see if you can re-use _.filter() here, without simply
     // copying code in and modifying it
+    return _.filter(collection, function(item) {
+      return !test(item);
+    });
   };
 
   // Produce a duplicate-free version of the array.
-  _.uniq = function(array, isSorted, iterator) {
+  _.uniq = function(array, isSorted, iterator = _.identity) {
+    var results = [];
+    if (isSorted) {
+      _.each(array, function(val) {
+        if (iterator(results[results.length - 1]) !== iterator(val)) {
+          results.push(val);
+        }
+      });
+    } else {
+      _.each(array, function(val) {
+        let isUniq = true;
+        _.each(results, function(rval) {
+          if (iterator(rval) === iterator(val)) {
+            isUniq = false;
+            return;
+          }
+        });
+        if (isUniq) { results.push(val); }
+      });
+    }
+    return results;
   };
 
 
   // Return the results of applying an iterator to each element.
-  _.map = function(collection, iterator) {
-    // map() is a useful primitive iteration function that works a lot
-    // like each(), but in addition to running the operation on all
-    // the members, it also maintains an array of results.
+  _.map = function(collection, iterator = _.identity) {
+    let results = [];
+    _.each(collection, function(val) {
+      results.push(iterator(val));
+    });
+    return results;
   };
 
   /*
@@ -107,24 +156,34 @@
   // Reduces an array or object to a single value by repetitively calling
   // iterator(accumulator, item) for each item. accumulator should be
   // the return value of the previous iterator call.
-  //  
+  //
   // You can pass in a starting value for the accumulator as the third argument
   // to reduce. If no starting value is passed, the first element is used as
   // the accumulator, and is never passed to the iterator. In other words, in
   // the case where a starting value is not passed, the iterator is not invoked
   // until the second element, with the first element as its second argument.
-  //  
+  //
   // Example:
   //   var numbers = [1,2,3];
   //   var sum = _.reduce(numbers, function(total, number){
   //     return total + number;
   //   }, 0); // should be 6
-  //  
+  //
   //   var identity = _.reduce([5], function(total, number){
   //     return total + number * number;
   //   }); // should be 5, regardless of the iterator function passed in
   //          No accumulator is given so the first element is used.
   _.reduce = function(collection, iterator, accumulator) {
+    let isMemo = !(accumulator === undefined);
+    _.each(collection, function(val) {
+      if (isMemo) {
+        accumulator = iterator(accumulator, val);
+      } else {
+        accumulator = val;
+        isMemo = true;
+      }
+    });
+    return accumulator;
   };
 
   // Determine if the array or object contains a given value (using `===`).
@@ -141,13 +200,23 @@
 
 
   // Determine whether all of the elements match a truth test.
-  _.every = function(collection, iterator) {
+  _.every = function(collection, iterator = _.identity) {
     // TIP: Try re-using reduce() here.
+    return _.reduce(collection, function(accumulator, val) {
+      if (!accumulator) {
+        return false;
+      } else {
+        return Boolean(iterator(val));
+      }
+    }, true);
   };
 
   // Determine whether any of the elements pass a truth test. If no iterator is
   // provided, provide a default one
-  _.some = function(collection, iterator) {
+  _.some = function(collection, iterator = _.identity) {
+    return !_.every(collection, function(val) {
+      return !iterator(val);
+    });
     // TIP: There's a very clever way to re-use every() here.
   };
 
@@ -170,12 +239,26 @@
   //   }, {
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
-  _.extend = function(obj) {
+  _.extend = function(obj, ...objs) {
+    return _.reduce(objs, function(obj, obj2) {
+      _.each(obj2, function(value, key) {
+        obj[key] = value;
+      });
+      return obj;
+    }, obj);
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
-  _.defaults = function(obj) {
+  _.defaults = function(obj, ...objs) {
+    return _.reduce(objs, function(obj, obj2) {
+      _.each(obj2, function(value, key) {
+        if (!obj.hasOwnProperty(key)) {
+          obj[key] = value;
+        }
+      });
+      return obj;
+    }, obj);
   };
 
 
@@ -195,6 +278,7 @@
     // time it's called.
     var alreadyCalled = false;
     var result;
+
 
     // TIP: We'll return a new function that delegates to the old one, but only
     // if it hasn't been called before.
@@ -218,7 +302,17 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
+
   _.memoize = function(func) {
+    var results = {};
+    return function(...args) {
+      let argsString = JSON.stringify(args);
+      if (!results.hasOwnProperty(argsString)) {
+        results[argsString] = _.once(func);
+        return results[argsString](...args);
+      }
+      return results[argsString]();
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -227,7 +321,8 @@
   // The arguments for the original function are passed after the wait
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
-  _.delay = function(func, wait) {
+  _.delay = function(func, wait, ...args) {
+    setTimeout(func, wait, ...args);
   };
 
 
@@ -242,6 +337,13 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    array = array.slice(0);
+    let results = [];
+    while (array.length > 0) {
+      let index = Math.floor(Math.random() * array.length);
+      results.push(array.splice(index, 1)[0]);
+    }
+    return results;
   };
 
 
@@ -256,6 +358,7 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+
   };
 
   // Sort the object's values by a criterion produced by an iterator.
