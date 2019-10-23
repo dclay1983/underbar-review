@@ -229,17 +229,59 @@
    * but nothing beyond here is required.
    */
 
-  // Calls the method named by functionOrKey on each value in the list.
-  // Note: You will need to learn a bit about .apply to complete this.
-  _.invoke = function(collection, functionOrKey, args) {
-
+  //------------------------INVOKE------------------------------------//
+  _.invoke = (collection, functionOrKey, args) => {
+    if (typeof functionOrKey === 'string') {
+      functionOrKey = collection[0][functionOrKey];
+    }
+    return _.map(collection, (val) => {
+      return functionOrKey.apply(val, args);
+    });
   };
 
   // Sort the object's values by a criterion produced by an iterator.
   // If iterator is a string, sort objects by that property with the name
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
-  _.sortBy = function(collection, iterator) {
+  _.sortBy = (collection, iterator, results = []) => {
+    if (collection.length > 1) {
+      debugger;
+      let mid = Math.floor(collection.length / 2);
+      let left = _.sortBy(collection.slice(0, mid), iterator, results);
+      let right = _.sortBy(collection.slice(mid), iterator, results);
+
+      if (typeof iterator === 'string') {
+        iterator = (val) => {
+          return val[iterator] === undefined ? Infinity : val[iterator];
+        };
+      } else {
+        iterator = (val) => {
+          return iterator(val) === undefined ? Infinity : iterator(val);
+        };
+      }
+
+      let leftIndex = 0;
+      let rightIndex = 0;
+      while (leftIndex < left.length && rightIndex < right.length) {
+        debugger;
+        if (iterator(left[leftIndex]) <= iterator(right[rightIndex])) {
+          results.push(left[leftIndex]);
+          leftIndex++;
+        } else {
+          results.push(right[rightIndex]);
+          rightIndex++;
+        }
+      }
+      for (leftIndex; leftIndex < left.length; leftIndex++) {
+        results.push(left[leftIndex]);
+      }
+      for (rightIndex; rightIndex < right.length; rightIndex++) {
+        results.push(right[rightIndex]);
+      }
+    } else {
+      results = collection;
+    }
+    return results;
   };
 
   // Zip together two or more arrays with elements of the same index
